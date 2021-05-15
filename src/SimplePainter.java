@@ -7,22 +7,30 @@ import java.awt.*;
  *
  */
 public class SimplePainter extends JFrame {
-	private static final int width = 1000;
-	private static final int height = 800;
+	private static final int width = 500;
+	private static final int height = 500;
 	
 	public SimplePainter() {
 		super("Simple Painter");
 		
-		setSize(width, height);
+		Dimension minimumSize = new Dimension(width,height);
+		setMinimumSize(minimumSize);
 		
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setVisible(true);
 		
-		// Call getGraphics after setting visible to true
-		Graphics g = this.getGraphics();
+		// Create a canvas panel
+		JPanel canvasPanel = new JPanel();
 		
-		g.drawString("Hello, world", 10, 50);
+		// Create a SimpleCanvas
+		SimpleCanvas canvas = new SimpleCanvas();
 		
+		// Add the Simple canvas to our panel
+		canvasPanel.add(canvas);
+		
+		// Add our panel
+		this.getContentPane().add(canvasPanel);
+		
+		setVisible(true);		
 	}
 	
 	public static void main(String args[]) {
