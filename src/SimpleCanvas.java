@@ -5,19 +5,23 @@ import java.awt.event.MouseMotionListener;
 import java.awt.geom.Path2D;
 import java.util.ArrayList;
 
+import javax.swing.JPanel;
+
 
 /**
  * The canvas for the user to draw onto
  * @author Logan Crockett
  *
  */
-public class SimpleCanvas extends Canvas implements MouseListener, MouseMotionListener {
+public class SimpleCanvas extends JPanel implements MouseListener, MouseMotionListener {
+	// Store every path made so we can re-draw it when the canvas updates (or is re-sized)
+	private ArrayList<Path2D> totalPaths = new ArrayList<Path2D>();
 	private Path2D path = new Path2D.Double(); // Holds the points to draw
 	
 	public SimpleCanvas() {
 		super();
 		
-		this.setSize(800, 500);
+		this.setPreferredSize(new Dimension(500, 500));
 		this.setBackground(Color.WHITE);
 		
 		this.addMouseListener(this);
@@ -26,16 +30,27 @@ public class SimpleCanvas extends Canvas implements MouseListener, MouseMotionLi
 		this.setVisible(true);
 	}
 	
-	public void paint() {
-		Graphics g = getGraphics();
+	@Override
+	protected void paintComponent(Graphics g) {
+		super.paintComponent(g);
 		
-		g.setColor(Color.GREEN);
-		g.drawRect(0,0,100, 100);
+		Graphics2D g2 = (Graphics2D) g;
 		
-		g.dispose();
+		// Start by clearing the Canvas
+		g2.clearRect(0, 0, this.getWidth(), this.getHeight());
+		
+		// Go through and draw each path now
+		for (Path2D p: totalPaths) {
+			g2.draw(p);
+		}
+		
+		g2.dispose();
+		
 	}
 	
-	// Draws the given path for the mouse movement
+	/**
+	 * Draws the given path for the mouse movement
+	 */
 	private void drawMouseMovement() {
 		Graphics2D g = (Graphics2D) getGraphics();
 		
@@ -69,8 +84,18 @@ public class SimpleCanvas extends Canvas implements MouseListener, MouseMotionLi
 
 	@Override
 	public void mouseReleased(MouseEvent arg0) {
+		// Add our path to the current list
+		totalPaths.add(path);
+		
+		/*// Commented out
 		// On release, reset our path, as we will have drawn everything by now
-		path.reset();
+		// path.reset();
+		 * 
+		 */
+		
+		// Set our path to a new instance of Path2D
+		// By doing so, it prevents us from writing over the previous path in our totalPaths arraylist
+		path = new Path2D.Double();
 	}
 
 	@Override
