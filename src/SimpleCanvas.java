@@ -3,7 +3,8 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.geom.Path2D;
-import java.util.ArrayList;
+import java.awt.image.BufferedImage;
+// import java.util.ArrayList;
 
 import javax.swing.JPanel;
 
@@ -15,8 +16,11 @@ import javax.swing.JPanel;
  */
 public class SimpleCanvas extends JPanel implements MouseListener, MouseMotionListener {
 	// Store every path made so we can re-draw it when the canvas updates (or is re-sized)
-	private ArrayList<Path2D> totalPaths = new ArrayList<Path2D>();
+	// private ArrayList<Path2D> totalPaths = new ArrayList<Path2D>(); // Commented out. Use BufferedImage drawing now
 	private Path2D path = new Path2D.Double(); // Holds the points to draw
+	private BufferedImage oldImage; // Previous Image
+	private BufferedImage canvasImage; // The current image we are drawing onto
+	private Graphics2D canvasGraphics; // The current graphics of the image we are drawing on
 	
 	public SimpleCanvas() {
 		super();
@@ -31,8 +35,37 @@ public class SimpleCanvas extends JPanel implements MouseListener, MouseMotionLi
 	}
 	
 	@Override
+	/**
+	 * Paints our component initially and on window resize
+	 * Use this to redraw our canvas content when the window changes size
+	 */
 	protected void paintComponent(Graphics g) {
 		super.paintComponent(g);
+		
+		// If we don't have a canvas image, create one to use
+		if (canvasImage == null) {
+			canvasImage = this.getGraphicsConfiguration().createCompatibleImage(this.getWidth(), this.getHeight());
+			// Create the graphics object to use as well
+			canvasGraphics = canvasImage.createGraphics();
+		}
+		
+		// Clear the background to white (or current background color), or it will just be black
+		canvasGraphics.setBackground(Color.white);
+		canvasGraphics.setColor(Color.black); // Set to black for now. It defaults to white
+		// Now clear the canvas rectangle
+		canvasGraphics.clearRect(0, 0, this.getWidth(), this.getHeight());
+		
+		// If we have an old image, then draw it onto our canvas image before drawing the canvas image
+		// or else nothing will show up
+		if (oldImage != null) {
+			canvasGraphics.drawImage(oldImage, 0, 0, null);
+		}
+		
+		// Draw the canvas image now
+		g.drawImage(canvasImage, 0, 0, null);
+		
+		/*// Commented Out. Old way of drawing the canvas
+		 * // Commented out. Don't need with BufferedImage drawing
 		
 		Graphics2D g2 = (Graphics2D) g;
 		
@@ -45,6 +78,7 @@ public class SimpleCanvas extends JPanel implements MouseListener, MouseMotionLi
 		}
 		
 		g2.dispose();
+		*/
 		
 	}
 	
@@ -52,10 +86,14 @@ public class SimpleCanvas extends JPanel implements MouseListener, MouseMotionLi
 	 * Draws the given path for the mouse movement
 	 */
 	private void drawMouseMovement() {
+		// Grab the graphics for the current component
 		Graphics2D g = (Graphics2D) getGraphics();
 		
-		// Draw our path
-		g.draw(path);
+		// Draw our path onto the canvas image
+		canvasGraphics.draw(path);
+		
+		// Redraw the image to reflect current changes
+		g.drawImage(canvasImage, 0, 0, null);
 		
 		g.dispose();
 	}
@@ -85,17 +123,30 @@ public class SimpleCanvas extends JPanel implements MouseListener, MouseMotionLi
 	@Override
 	public void mouseReleased(MouseEvent arg0) {
 		// Add our path to the current list
-		totalPaths.add(path);
+		// totalPaths.add(path); // Commented Out. Use BufferedImage drawing now
 		
-		/*// Commented out
 		// On release, reset our path, as we will have drawn everything by now
-		// path.reset();
+		path.reset();
+		
+		/*
+		 * Commented Out. With BufferedImage drawing, we don't have to reset the path to a new instance
+		// Set our path to a new instance of Path2D
+		// By doing so, it prevents us from writing over the previous path in our totalPaths arraylist
+		// path = new Path2D.Double();
 		 * 
 		 */
 		
-		// Set our path to a new instance of Path2D
-		// By doing so, it prevents us from writing over the previous path in our totalPaths arraylist
-		path = new Path2D.Double();
+		// Set our old image to the current one
+		oldImage = canvasImage;
+		canvasGraphics.dispose(); // Dispose of the old graphics object for our canvas
+		
+		// Create a new image to draw onto
+		canvasImage = this.getGraphicsConfiguration().createCompatibleImage(this.getWidth(), this.getHeight());
+		// Create the graphics for this new image
+		canvasGraphics = canvasImage.createGraphics();
+		
+		// Lastly, draw our old image onto the new image
+		canvasGraphics.drawImage(oldImage, 0, 0, null);
 	}
 
 	@Override
