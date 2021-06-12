@@ -25,6 +25,9 @@ public class SimpleCanvas extends JPanel implements MouseListener, MouseMotionLi
 	private BufferedImage canvasImage; // The current image we are drawing onto
 	private Graphics2D canvasGraphics; // The current graphics of the image we are drawing on
 	
+	// User Data Fields. Use getter methods to access and pass to input fields (sliders, choosers, etc.)
+	private int brushSize = 2;
+	
 	public SimpleCanvas() {
 		super();
 		
@@ -35,6 +38,14 @@ public class SimpleCanvas extends JPanel implements MouseListener, MouseMotionLi
 		this.addMouseMotionListener(this);
 		
 		this.setVisible(true);
+	}
+	
+	/**
+	 * Gets the current brush size
+	 * @return the current brush size
+	 */
+	public int getBrushSize() {
+		return brushSize;
 	}
 	
 	@Override
@@ -54,7 +65,7 @@ public class SimpleCanvas extends JPanel implements MouseListener, MouseMotionLi
 			// Set our basic properties
 			
 			canvasGraphics.setColor(Color.black); // Set to black for now. It defaults to white
-			canvasGraphics.setStroke(new BasicStroke(0));
+			canvasGraphics.setStroke(new BasicStroke(this.brushSize));
 		}
 		
 		// Clear the background to white (or current background color), or it will just be black
@@ -187,12 +198,15 @@ public class SimpleCanvas extends JPanel implements MouseListener, MouseMotionLi
 		int newSize = ((JSlider)e.getSource()).getValue();
 		if (newSize < 0) {
 			canvasGraphics.setStroke(new BasicStroke(0));
+			this.brushSize = 0;
 		}
 		else if (newSize > 20) {
 			canvasGraphics.setStroke(new BasicStroke(20));
+			this.brushSize = 20;
 		}
 		else {
 			canvasGraphics.setStroke(new BasicStroke(newSize));
+			this.brushSize = newSize;
 		}
 	}
 }

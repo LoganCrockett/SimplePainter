@@ -30,7 +30,7 @@ public class SimplePainter extends JFrame {
 		JPanel toolsPanel = new JPanel();
 		
 		// Create a JSLider for our tools panel
-		JSlider brushSize = new JSlider(0, 20, 5);
+		JSlider brushSize = new JSlider(0, 20, canvas.getBrushSize());
 		brushSize.setPaintTicks(true);
 		brushSize.setMajorTickSpacing(5);
 		brushSize.setMinorTickSpacing(1);
