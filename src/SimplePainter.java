@@ -7,28 +7,50 @@ import java.awt.*;
  *
  */
 public class SimplePainter extends JFrame {
-	private static final int width = 500;
-	private static final int height = 500;
+	private static final int WIDTH = 500;
+	private static final int HEIGHT = 500;
+	private SimpleCanvas canvas;
 	
 	public SimplePainter() {
 		super("Simple Painter");
 		
-		Dimension minimumSize = new Dimension(width,height);
+		Dimension minimumSize = new Dimension(WIDTH,HEIGHT);
 		setMinimumSize(minimumSize);
 		
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
-		// Create a canvas panel
-		JPanel canvasPanel = new JPanel();
+		// Create a BorderLayout, and use it to align our content
+		this.setLayout(new BorderLayout());
 		
 		// Create a SimpleCanvas
-		SimpleCanvas canvas = new SimpleCanvas();
+		canvas = new SimpleCanvas();
+		
+		// Step 1: Create a panel for tools (brush size, color, etc)
+		JPanel toolsPanel = new JPanel();
+		
+		// Create a JSLider for our tools panel
+		JSlider brushSize = new JSlider(0, 20, 5);
+		brushSize.setPaintTicks(true);
+		brushSize.setMajorTickSpacing(5);
+		brushSize.setMinorTickSpacing(1);
+		brushSize.setPaintLabels(true);
+		brushSize.setSnapToTicks(true);
+		brushSize.addChangeListener(canvas);
+		
+		toolsPanel.add(brushSize);
+		
+		// Step 2: Add Tools panel to our frame
+		this.getContentPane().add(toolsPanel, BorderLayout.NORTH);
+		// Create a canvas panel
+		JPanel canvasPanel = new JPanel();
 		
 		// Add the Simple canvas to our panel
 		canvasPanel.add(canvas);
 		
 		// Add our panel
-		this.getContentPane().add(canvasPanel);
+		this.getContentPane().add(canvasPanel, BorderLayout.CENTER);
+		
+		this.pack();
 		
 		setVisible(true);		
 	}

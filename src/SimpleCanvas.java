@@ -7,6 +7,9 @@ import java.awt.image.BufferedImage;
 // import java.util.ArrayList;
 
 import javax.swing.JPanel;
+import javax.swing.JSlider;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 
 /**
@@ -14,7 +17,7 @@ import javax.swing.JPanel;
  * @author Logan Crockett
  *
  */
-public class SimpleCanvas extends JPanel implements MouseListener, MouseMotionListener {
+public class SimpleCanvas extends JPanel implements MouseListener, MouseMotionListener, ChangeListener {
 	// Store every path made so we can re-draw it when the canvas updates (or is re-sized)
 	// private ArrayList<Path2D> totalPaths = new ArrayList<Path2D>(); // Commented out. Use BufferedImage drawing now
 	private Path2D path = new Path2D.Double(); // Holds the points to draw
@@ -47,11 +50,15 @@ public class SimpleCanvas extends JPanel implements MouseListener, MouseMotionLi
 			canvasImage = this.getGraphicsConfiguration().createCompatibleImage(this.getWidth(), this.getHeight());
 			// Create the graphics object to use as well
 			canvasGraphics = canvasImage.createGraphics();
+			
+			// Set our basic properties
+			
+			canvasGraphics.setColor(Color.black); // Set to black for now. It defaults to white
+			canvasGraphics.setStroke(new BasicStroke(0));
 		}
 		
 		// Clear the background to white (or current background color), or it will just be black
 		canvasGraphics.setBackground(Color.white);
-		canvasGraphics.setColor(Color.black); // Set to black for now. It defaults to white
 		// Now clear the canvas rectangle
 		canvasGraphics.clearRect(0, 0, this.getWidth(), this.getHeight());
 		
@@ -138,12 +145,24 @@ public class SimpleCanvas extends JPanel implements MouseListener, MouseMotionLi
 		
 		// Set our old image to the current one
 		oldImage = canvasImage;
-		canvasGraphics.dispose(); // Dispose of the old graphics object for our canvas
+		// canvasGraphics.dispose(); // Dispose of the old graphics object for our canvas
 		
 		// Create a new image to draw onto
 		canvasImage = this.getGraphicsConfiguration().createCompatibleImage(this.getWidth(), this.getHeight());
 		// Create the graphics for this new image
-		canvasGraphics = canvasImage.createGraphics();
+		Graphics2D newGraphics = canvasImage.createGraphics();
+		
+		// Copy all of our old properties over
+		newGraphics.setStroke(canvasGraphics.getStroke());
+		newGraphics.setColor(canvasGraphics.getColor());
+		
+		// canvasGraphics = canvasImage.createGraphics(); // Commented Out. Don't need anymore
+		
+		canvasGraphics.dispose();
+		
+		canvasGraphics = newGraphics;
+		
+		
 		
 		// Lastly, draw our old image onto the new image
 		canvasGraphics.drawImage(oldImage, 0, 0, null);
@@ -159,5 +178,21 @@ public class SimpleCanvas extends JPanel implements MouseListener, MouseMotionLi
 	@Override
 	// Do nothing with this event
 	public void mouseMoved(MouseEvent arg0) {}
-	
+
+	@Override
+	/**
+	 * Monitors changes in the slider for brush size, and updates accordingly
+	 */
+	public void stateChanged(ChangeEvent e) {
+		int newSize = ((JSlider)e.getSource()).getValue();
+		if (newSize < 0) {
+			canvasGraphics.setStroke(new BasicStroke(0));
+		}
+		else if (newSize > 20) {
+			canvasGraphics.setStroke(new BasicStroke(20));
+		}
+		else {
+			canvasGraphics.setStroke(new BasicStroke(newSize));
+		}
+	}
 }
