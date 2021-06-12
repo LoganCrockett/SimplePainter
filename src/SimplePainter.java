@@ -9,11 +9,15 @@ import java.awt.*;
 public class SimplePainter extends JFrame {
 	private static final int WIDTH = 500;
 	private static final int HEIGHT = 500;
-	private SimpleCanvas canvas;
+	private SimpleCanvas canvas = new SimpleCanvas();
 	
 	public SimplePainter() {
 		super("Simple Painter");
 		
+		this.createAndShowGUI();
+	}
+	
+	private void createAndShowGUI() {
 		Dimension minimumSize = new Dimension(WIDTH,HEIGHT);
 		setMinimumSize(minimumSize);
 		
@@ -21,9 +25,6 @@ public class SimplePainter extends JFrame {
 		
 		// Create a BorderLayout, and use it to align our content
 		this.setLayout(new BorderLayout());
-		
-		// Create a SimpleCanvas
-		canvas = new SimpleCanvas();
 		
 		// Step 1: Create a panel for tools (brush size, color, etc)
 		JPanel toolsPanel = new JPanel();
@@ -52,7 +53,7 @@ public class SimplePainter extends JFrame {
 		
 		this.pack();
 		
-		setVisible(true);		
+		setVisible(true);	
 	}
 	
 	public static void main(String args[]) {
