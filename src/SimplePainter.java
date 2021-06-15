@@ -40,8 +40,14 @@ public class SimplePainter extends JFrame {
 		
 		toolsPanel.add(brushSize);
 		
+		// Create the mode selector, and add it
+		ModeSelector modes = new ModeSelector(canvas);
+		
+		toolsPanel.add(modes);
+		
 		// Step 2: Add Tools panel to our frame
 		this.getContentPane().add(toolsPanel, BorderLayout.NORTH);
+		
 		// Create a canvas panel
 		JPanel canvasPanel = new JPanel();
 		

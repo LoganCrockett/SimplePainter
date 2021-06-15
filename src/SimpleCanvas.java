@@ -24,6 +24,7 @@ public class SimpleCanvas extends JPanel implements MouseListener, MouseMotionLi
 	private BufferedImage oldImage; // Previous Image
 	private BufferedImage canvasImage; // The current image we are drawing onto
 	private Graphics2D canvasGraphics; // The current graphics of the image we are drawing on
+	private boolean isDrawingMode = true; // Flag for if we are in drawing mode or erasing mode
 	
 	// User Data Fields. Use getter methods to access and pass to input fields (sliders, choosers, etc.)
 	private int brushSize = 2;
@@ -48,11 +49,31 @@ public class SimpleCanvas extends JPanel implements MouseListener, MouseMotionLi
 		return brushSize;
 	}
 	
-	@Override
+	/**
+	 * Changes the drawing mode to "draw" or "erase" and updates
+	 * the current color based on the mode
+	 * @param mode the mode we are switching to
+	 */
+	public void setDrawingMode(String mode) {
+		isDrawingMode = mode.toLowerCase().equals("draw");
+		
+		// Drawing mode
+		if (isDrawingMode) {
+			// Set color to current selected color if we are drawing
+			canvasGraphics.setColor(Color.black);
+		}
+		// Erase Mode
+		else {
+			// Set color to current background color if we are erasing
+			canvasGraphics.setColor(canvasGraphics.getBackground());
+		}
+	}
+	
 	/**
 	 * Paints our component initially and on window resize
 	 * Use this to redraw our canvas content when the window changes size
 	 */
+	@Override
 	protected void paintComponent(Graphics g) {
 		super.paintComponent(g);
 		
@@ -65,6 +86,7 @@ public class SimpleCanvas extends JPanel implements MouseListener, MouseMotionLi
 			// Set our basic properties
 			
 			canvasGraphics.setColor(Color.black); // Set to black for now. It defaults to white
+			canvasGraphics.setBackground(Color.white);
 			canvasGraphics.setStroke(new BasicStroke(this.brushSize));
 		}
 		
@@ -109,6 +131,7 @@ public class SimpleCanvas extends JPanel implements MouseListener, MouseMotionLi
 		
 		// Draw our path onto the canvas image
 		canvasGraphics.draw(path);
+		
 		
 		// Redraw the image to reflect current changes
 		g.drawImage(canvasImage, 0, 0, null);
@@ -166,6 +189,7 @@ public class SimpleCanvas extends JPanel implements MouseListener, MouseMotionLi
 		// Copy all of our old properties over
 		newGraphics.setStroke(canvasGraphics.getStroke());
 		newGraphics.setColor(canvasGraphics.getColor());
+		newGraphics.setBackground(canvasGraphics.getBackground());
 		
 		// canvasGraphics = canvasImage.createGraphics(); // Commented Out. Don't need anymore
 		
@@ -190,10 +214,10 @@ public class SimpleCanvas extends JPanel implements MouseListener, MouseMotionLi
 	// Do nothing with this event
 	public void mouseMoved(MouseEvent arg0) {}
 
-	@Override
 	/**
 	 * Monitors changes in the slider for brush size, and updates accordingly
 	 */
+	@Override
 	public void stateChanged(ChangeEvent e) {
 		int newSize = ((JSlider)e.getSource()).getValue();
 		if (newSize < 0) {
