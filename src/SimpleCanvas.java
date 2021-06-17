@@ -25,6 +25,7 @@ public class SimpleCanvas extends JPanel implements MouseListener, MouseMotionLi
 	private BufferedImage canvasImage; // The current image we are drawing onto
 	private Graphics2D canvasGraphics; // The current graphics of the image we are drawing on
 	private boolean isDrawingMode = true; // Flag for if we are in drawing mode or erasing mode
+	private int previousMouseX, previousMouseY = 0; // Holds the previous mouse positions so we can clear the circle being drawn around the mouse
 	
 	// User Data Fields. Use getter methods to access and pass to input fields (sliders, choosers, etc.)
 	private int brushSize = 2;
@@ -46,7 +47,7 @@ public class SimpleCanvas extends JPanel implements MouseListener, MouseMotionLi
 	 * @return the current brush size
 	 */
 	public int getBrushSize() {
-		return brushSize;
+		return this.brushSize;
 	}
 	
 	/**
@@ -61,6 +62,9 @@ public class SimpleCanvas extends JPanel implements MouseListener, MouseMotionLi
 		if (isDrawingMode) {
 			// Set color to current selected color if we are drawing
 			canvasGraphics.setColor(Color.black);
+			
+			// Go ahead and clear the circle around the mouse from erasing mode as well
+			this.clearCircleAroundMouse();
 		}
 		// Erase Mode
 		else {
@@ -119,7 +123,41 @@ public class SimpleCanvas extends JPanel implements MouseListener, MouseMotionLi
 		
 		g2.dispose();
 		*/
+	}
+	
+	/**
+	 * Draws a circle on the Panel (not the canvas image) when user is in erasing mode
+	 * @param x x-coordinate of mouse position
+	 * @param y y-coordinate of mouse position
+	 */
+	private void drawCircleAroundMouse(int x, int y) {
+		Graphics2D g = (Graphics2D)this.getGraphics();
 		
+		// Clear the old circle first
+		this.clearCircleAroundMouse();
+		
+		// Now redraw the circle around the mouse
+		g.setColor(Color.black);
+		g.drawOval(x - (this.brushSize / 2), y - (this.brushSize / 2), this.brushSize, this.brushSize);
+		
+		// Update our old values to our current ones
+		previousMouseX = x;
+		previousMouseY = y;
+		
+		g.dispose();
+	}
+	
+	/**
+	 * Fills in the old circle around the mouse to the current background color of the canvas image
+	 */
+	private void clearCircleAroundMouse() {
+		Graphics2D g = (Graphics2D)this.getGraphics();
+		
+		// Fill in the oval to the current background color of the canvas
+		g.setColor(canvasGraphics.getBackground());
+		g.fillOval(previousMouseX - (this.brushSize / 2)-1, previousMouseY - (this.brushSize / 2)-1, this.brushSize+3, this.brushSize+3);
+		
+		g.dispose();
 	}
 	
 	/**
@@ -159,6 +197,12 @@ public class SimpleCanvas extends JPanel implements MouseListener, MouseMotionLi
 		// Go ahead and draw the line for this path
 		path.lineTo(arg0.getX(), arg0.getY());
 		this.drawMouseMovement();
+		
+		// If we are erasing, we need to draw a circle around the mouse after we have drawn the path
+		// Or it will erase as we draw
+		if (!isDrawingMode) {
+			this.drawCircleAroundMouse(arg0.getX(), arg0.getY());
+		}
 	}
 
 	@Override
@@ -208,11 +252,22 @@ public class SimpleCanvas extends JPanel implements MouseListener, MouseMotionLi
 		// Add our points as the mouse drags
 		path.lineTo(arg0.getX(), arg0.getY());
 		this.drawMouseMovement();
+		
+		// If we are erasing, we need to draw a circle around the mouse after we have drawn the path
+		// Or it will just erase it as we draw
+		if (!isDrawingMode) {
+			this.drawCircleAroundMouse(arg0.getX(), arg0.getY());
+		}
+		
 	}
 
 	@Override
-	// Do nothing with this event
-	public void mouseMoved(MouseEvent arg0) {}
+	public void mouseMoved(MouseEvent arg0) {
+		// If we are erasing, we need to draw a circle around the mouse
+		if (!isDrawingMode) {
+			this.drawCircleAroundMouse(arg0.getX(), arg0.getY());
+		}
+	}
 
 	/**
 	 * Monitors changes in the slider for brush size, and updates accordingly
