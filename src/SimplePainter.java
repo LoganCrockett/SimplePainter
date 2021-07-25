@@ -7,8 +7,8 @@ import java.awt.*;
  *
  */
 public class SimplePainter extends JFrame {
-	private static final int WIDTH = 500;
-	private static final int HEIGHT = 500;
+	private static final int WIDTH = 600;
+	private static final int HEIGHT = 600;
 	private SimpleCanvas canvas = new SimpleCanvas();
 	
 	public SimplePainter() {
@@ -44,6 +44,17 @@ public class SimplePainter extends JFrame {
 		ModeSelector modes = new ModeSelector(canvas);
 		
 		toolsPanel.add(modes);
+		
+		// Create a button for opening the color changing window
+		JButton colorButton = new JButton();
+		colorButton.setBackground(canvas.getCurrentColor());
+		colorButton.setActionCommand("toggleVisibility");
+		
+		ColorSelector cs = new ColorSelector(canvas, colorButton);
+		
+		colorButton.addActionListener(cs);
+		
+		toolsPanel.add(colorButton);
 		
 		// Step 2: Add Tools panel to our frame
 		this.getContentPane().add(toolsPanel, BorderLayout.NORTH);

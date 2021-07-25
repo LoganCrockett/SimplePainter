@@ -29,6 +29,7 @@ public class SimpleCanvas extends JPanel implements MouseListener, MouseMotionLi
 	
 	// User Data Fields. Use getter methods to access and pass to input fields (sliders, choosers, etc.)
 	private int brushSize = 2;
+	private Color currentColor = Color.black;
 	
 	public SimpleCanvas() {
 		super();
@@ -51,6 +52,28 @@ public class SimpleCanvas extends JPanel implements MouseListener, MouseMotionLi
 	}
 	
 	/**
+	 * Gets the current color
+	 * @return the current color
+	 */
+	public Color getCurrentColor() {
+		// If canvas graphics is not defined, then return the default color (black)
+		return currentColor;
+	}
+	
+	/**
+	 * Sets the current color
+	 * @param c the new color
+	 */
+	public void setCurrentColor(Color c) {
+		currentColor = c;
+		
+		// If we are drawing, go ahead and update immediately. Otherwise, it will be handled later
+		if (isDrawingMode) {
+			canvasGraphics.setColor(c);
+		}
+	}
+	
+	/**
 	 * Changes the drawing mode to "draw" or "erase" and updates
 	 * the current color based on the mode
 	 * @param mode the mode we are switching to
@@ -61,7 +84,7 @@ public class SimpleCanvas extends JPanel implements MouseListener, MouseMotionLi
 		// Drawing mode
 		if (isDrawingMode) {
 			// Set color to current selected color if we are drawing
-			canvasGraphics.setColor(Color.black);
+			canvasGraphics.setColor(currentColor);
 			
 			// Go ahead and clear the circle around the mouse from erasing mode as well
 			this.clearCircleAroundMouse();
@@ -89,7 +112,8 @@ public class SimpleCanvas extends JPanel implements MouseListener, MouseMotionLi
 			
 			// Set our basic properties
 			
-			canvasGraphics.setColor(Color.black); // Set to black for now. It defaults to white
+			// canvasGraphics.setColor(Color.black); // Set to black for now. It defaults to white
+			canvasGraphics.setColor(currentColor);
 			canvasGraphics.setBackground(Color.white);
 			canvasGraphics.setStroke(new BasicStroke(this.brushSize));
 		}
@@ -177,20 +201,20 @@ public class SimpleCanvas extends JPanel implements MouseListener, MouseMotionLi
 		g.dispose();
 	}
 
-	@Override
 	// Do nothing with this event
+	@Override
 	public void mouseClicked(MouseEvent arg0) {}
 
-	@Override
 	// Do nothing with this event
+	@Override
 	public void mouseEntered(MouseEvent arg0) {}
 
-	@Override
 	// Do nothing with this event
+	@Override
 	public void mouseExited(MouseEvent arg0) {}
 
-	@Override
 	// Mouse Pressed fires before mouse clicked
+	@Override
 	public void mousePressed(MouseEvent arg0) {
 		// Start by adding this point to the beginning of the path
 		path.moveTo(arg0.getX(), arg0.getY());
